@@ -370,7 +370,7 @@ sysopenfile.o: ../userprog/sysopenfile.cc ../userprog/sysopenfile.h \
   /usr/include/gconv.h ../threads/stdarg.h /usr/include/bits/stdio_lim.h \
   /usr/include/bits/sys_errlist.h /usr/include/string.h \
   /usr/include/xlocale.h ../userprog/bitmap.h ../threads/copyright.h \
-  ../threads/utility.h ../filesys/openfile.h ../userprog/myutilities.h
+  ../threads/utility.h ../filesys/openfile.h ../userprog/utilities.h
 useropenfile.o: ../userprog/useropenfile.cc ../userprog/useropenfile.h
 exception.o: ../userprog/exception.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
@@ -414,7 +414,7 @@ progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/thread.h ../threads/synch.h ../userprog/useropenfile.h \
   ../userprog/memorymanager.h ../userprog/sysopenfile.h \
   ../filesys/filesys.h ../machine/console.h ../userprog/addrspace.h
-myutilities.o: ../userprog/myutilities.cc ../userprog/myutilities.h
+utilities.o: ../userprog/utilities.cc ../userprog/utilities.h
 console.o: ../machine/console.cc ../threads/copyright.h \
   ../machine/console.h ../threads/utility.h ../threads/copyright.h \
   ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \

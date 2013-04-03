@@ -28,9 +28,6 @@
 //TODO
 const int FILE_NAME_SIZE = 128;
 
-
-
-
 //----------------------------------------------------------------------
 //Need comments
 //----------------------------------------------------------------------
@@ -305,9 +302,11 @@ int JoinHandler(int id) {
 }
 
 
-//Project 3...
+//Project 3 System calls below.
 //----------------------------------------------------------------------
-//Need comments
+// Gets the fileName from user space then 
+// use fileSystem->Create(fileName,0)to create a new instance of an OpenFile object.
+// Until a user opens the file for IO it is not necessary to do anything further.
 //----------------------------------------------------------------------
 
 void CreateHandler(char *fileName) {
@@ -317,7 +316,11 @@ void CreateHandler(char *fileName) {
 }
 
 //----------------------------------------------------------------------
-//Need comments
+//Function will use an OpenFile object created previously by fileSystem->Open (fileName). 
+//Once you have this object, check to see if it is already open by some other process 
+//in the global SysOpenFile table. 
+//If so, incriment the userOpens count. 
+//If not, create a new SysOpenFile and store it's pointer
 //----------------------------------------------------------------------
 OpenFileId OpenHandler(char *fileName) {
 	printf("System Call: %d invoked Open\n", currentThread->space->pcb->pid);
@@ -348,7 +351,8 @@ OpenFileId OpenHandler(char *fileName) {
 }
 
 //----------------------------------------------------------------------
-//Need comments
+// Gets the userFile using the Id. 
+// Uses the userFile fileindex to create get a system file and closes it.
 //----------------------------------------------------------------------
 void CloseHandler(OpenFileId id) {
 	printf("System Call: %d invoked Close\n", currentThread->space->pcb->pid);
@@ -361,9 +365,15 @@ void CloseHandler(OpenFileId id) {
 	currentThread->space->pcb->Remove(id);
 }
 
-Semaphore *mutex2 = new Semaphore("mutex", 1);
 ///----------------------------------------------------------------------
-//Need comments
+//Get the arguments from the user in the same way you did for Write(). 
+//If the OpenFileID == ConsoleInput (syscall.h), use a routine to read into a 
+//buffer of size 'size+1' one character at a time using getChar(). 
+//Otherwise, grab a handle to the OpenFile object in the same way you did for Write() 
+//and use OpenFileObject->ReadAt(myOwnBuffer,size,pos) to put n characters into your buffer. 
+//pos is the position listed in the UserOpenFile object that 
+//represents the place in the current file you are writing to. With this method, 
+//you must explictly put a null byte after the last character read. The number read is returned from ReadAt(). 
 //----------------------------------------------------------------------
 int ReadHandler(int bufferAddr, int size, OpenFileId id) {
 	printf("System Call: %d invoked Read\n", currentThread->space->pcb->pid);
@@ -390,17 +400,24 @@ int ReadHandler(int bufferAddr, int size, OpenFileId id) {
 }
 
 //----------------------------------------------------------------------
-//Need comments
+//If the OpenFileID is == ConsoleOutput (syscall.h), then simply printf(buffer). 
+//Otherwise, grab a handle to the OpenFile object from the user's openfile list pointing 
+//to the global file list.
+//Once the OpenFile object is taken, fill up a buffer 
+//of size 'size+1' using your userReadWrite() function. 
+//Then call OpenFileObject->Write(myOwnBuffer, size);
 //----------------------------------------------------------------------
 void WriteHandler(int bufferAddr, int size, OpenFileId id) {
-	printf("System Call: %d invoked Write\n", currentThread->space->pcb->pid);
-	char* buffer = new char[size+1];
 	
+	char* buffer = new char[size+1];
+
 	if (id == ConsoleOutput) {
 		userReadWrite(bufferAddr,buffer,size,USER_WRITE);
 		buffer[size]=0;
-		printf("%s",buffer);
+		printf("%s\n",buffer);
 	} else {
+		printf("System Call: %d invoked Write\n", currentThread->space->pcb->pid);
+	
 		buffer = new char[size];
 		int writeSize = userReadWrite(bufferAddr,buffer,size,USER_WRITE);
 		UserOpenFile* userFile =  currentThread->space->pcb->Get(id);
@@ -478,6 +495,7 @@ ExceptionHandler(ExceptionType which)
 			result = KillHandler(arg1);
 			machine->WriteRegister(2, result);
 			break;
+		//Project 3 system calls.
 		case SC_Create:
 			ReadFile(fileName);
 			CreateHandler(fileName);
